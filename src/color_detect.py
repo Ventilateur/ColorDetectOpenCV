@@ -1,10 +1,15 @@
-from constance import *
+from src.constance import *
 
 ORIGIN_IMG = 'origin'
 MASKED_IMG = 'masked'
 FILTERED_IMG = 'filtered'
 MAX_SIZE = (40 * 40)
 K_SIZE = (5, 5)
+
+
+def opencv_is_ver_3():
+    ver = cv2.__version__.split('.')
+    return ver[0] == '3'
 
 
 class ColorDetect:
@@ -84,10 +89,13 @@ class ColorDetect:
             cv2.imshow(MASKED_IMG, self._masked_img)
 
     def draw_contours(self, color=GREEN, thickness=3, filtered=False, show_center=False):
-        _, self._contours, _ = cv2.findContours(self._masked_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        if opencv_is_ver_3():
+            _, self._contours, _ = cv2.findContours(self._masked_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        else:
+            self._contours, _ = cv2.findContours(self._masked_img, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
         if filtered:
             if len(self._contours) != 0:
-                for i in xrange(len(self._contours)):
+                for i in range(len(self._contours)):
                     # Finding the center of a contour
                     moment = cv2.moments(self._contours[i])
                     if moment['m00'] > MAX_SIZE:
